@@ -94,12 +94,13 @@ public class MainActivity extends AppCompatActivity {
                             return null;
                         });
 
+
+        // When tapping on the AR plane, the corgi will appear!
         arFragment.setOnTapArPlaneListener(
                 (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
                     if (mCorgi == null) {
                         return;
                     }
-
                     // Create the Anchor.
                     Anchor anchor = hitResult.createAnchor();
                     AnchorNode anchorNode = new AnchorNode(anchor);
