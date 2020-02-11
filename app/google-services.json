@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "613093678443",
+    "firebase_url": "https://mybuddy-fb880.firebaseio.com",
+    "project_id": "mybuddy-fb880",
+    "storage_bucket": "mybuddy-fb880.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:613093678443:android:3dc0893450c1725884402e",
+        "android_client_info": {
+          "package_name": "com.ufl.mybuddy"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "613093678443-1dl1lsfi0eoem1sahdpkj71to2hn5vhs.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ufl.mybuddy",
+            "certificate_hash": "cad779d5474c8498254fdf28981a19e7918f67d2"
+          }
+        },
+        {
+          "client_id": "613093678443-k0r96jdc5p7fq6suc0ve07ua9cli1r3v.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBBTxaAviUMspDHBfceAQY-PYKK8fdHVdo"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "613093678443-k0r96jdc5p7fq6suc0ve07ua9cli1r3v.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "613093678443-s6fhle167m5ng3hb6nkr4gntta5lotka.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.ufl.mybuddy"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
