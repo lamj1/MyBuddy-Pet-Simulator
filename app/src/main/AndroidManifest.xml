@@ -7,8 +7,9 @@
     <!--
  "AR Required" apps must declare minSdkVersion ≥ 24
          Already done in build.gradle app file
-    <uses-sdk android:minSdkVersion="24" />
     -->
+<!--    <uses-sdk android:minSdkVersion="24" />-->
+
     <!-- ARCore needs camera -->
     <uses-permission android:name="android.permission.CAMERA" />
     <!--
