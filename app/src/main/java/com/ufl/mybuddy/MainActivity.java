@@ -212,8 +212,6 @@ public class MainActivity extends AppCompatActivity {
         //https://www.youtube.com/watch?v=ntEBeB37p5Q&list=PLsOU6EOcj51cEDYpCLK_bzo4qtjOwDWfW&index=18
         mArFragment.getArSceneView().getScene().addOnUpdateListener(this::onPlaneDetection);
 
-        MainActivity appContext = this;
-
         //TODO Food bowl
 //        // When tapping on the AR plane, the corgi will appear!
 //        mArFragment.setOnTapArPlaneListener(
@@ -334,7 +332,7 @@ public class MainActivity extends AppCompatActivity {
             public void onClick(View v) {
                 onClear();
                 mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
-                mArFragment.getArSceneView().getScene().addOnUpdateListener(appContext::onPlaneDetection);
+                mArFragment.getArSceneView().getScene().addOnUpdateListener(MainActivity.this::onPlaneDetection);
             }
         });
     }
