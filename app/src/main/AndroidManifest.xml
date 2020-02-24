@@ -12,6 +12,10 @@
 
     <!-- ARCore needs camera -->
     <uses-permission android:name="android.permission.CAMERA" />
+
+    <!-- Voice commands need record audio -->
+    <uses-permission android:name="android.permission.RECORD_AUDIO" />
+
     <!--
  Indicates that the app requires ARCore ("AR Required"). Ensures the app is
          visible only in the Google Play Store on devices that support ARCore.
