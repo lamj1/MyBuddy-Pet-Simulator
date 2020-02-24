@@ -2,14 +2,23 @@ package com.ufl.mybuddy;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.ActionBarDrawerToggle;
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.Toolbar;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
+import android.Manifest;
+import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.speech.RecognizerIntent;
+import android.speech.RecognitionListener;
+import android.speech.SpeechRecognizer;
 import android.util.Log;
 import android.view.Gravity;
 import android.view.MenuItem;
@@ -59,7 +68,7 @@ import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private static final String TAG = "MainActivity";
 
@@ -93,6 +102,12 @@ public class MainActivity extends AppCompatActivity {
 
     // Google Sign in
     private GoogleSignInClient mGoogleSignInClient;
+
+    // Voice
+    private SpeechRecognizer mSpeechRecognizer;
+    private Intent mSpeechRecognizerIntent;
+    private boolean mIsListening;
+    private static final int PERMISSION_REQUEST_RECORD_AUDIO = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -193,6 +208,14 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        if (mSpeechRecognizer != null) {
+            mSpeechRecognizer.destroy();
+        }
+    }
+
     // Function to load log in view if Firebase user is not logged in.
     private void loadLogInView() {
         Intent intent = new Intent(this, LogInActivity.class);
@@ -232,6 +255,8 @@ public class MainActivity extends AppCompatActivity {
 //                });
 
         drawerInit();
+
+        voiceInit();
 
         // Find the account type logged in.
         for (UserInfo user : FirebaseAuth.getInstance().getCurrentUser().getProviderData()) {
@@ -322,9 +347,127 @@ public class MainActivity extends AppCompatActivity {
         mActionBarDrawerToggle.syncState();
     }
 
+    private void voiceInit() {
+        // set up the intent
+        mSpeechRecognizerIntent = new Intent(RecognizerIntent.ACTION_RECOGNIZE_SPEECH);
+        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_LANGUAGE_MODEL,
+                RecognizerIntent.LANGUAGE_MODEL_FREE_FORM);
+        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_CALLING_PACKAGE,
+                this.getPackageName());
+
+        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
+        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 100);
+        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
+
+        SpeechRecognitionListener listener = new SpeechRecognitionListener();
+
+        mSpeechRecognizer = SpeechRecognizer.createSpeechRecognizer(this);
+        mSpeechRecognizer.setRecognitionListener(listener);
+    }
+
+    boolean handleVoice(String command) {
+        boolean matchFound = true;
+        switch(command) {
+            case "rollover":
+                Toast.makeText(this, "Your pet is rolling over", Toast.LENGTH_SHORT).show();
+                break;
+            case "eat":
+                Toast.makeText(this, "Your pet is eating", Toast.LENGTH_SHORT).show();
+                break;
+            case "play":
+                Toast.makeText(this, "Your pet is playing", Toast.LENGTH_SHORT).show();
+                break;
+            case "sit":
+                Toast.makeText(this, "Your pet is sitting", Toast.LENGTH_SHORT).show();
+                break;
+            default:
+                matchFound = false;
+        }
+
+        return matchFound;
+    }
+
+    protected class SpeechRecognitionListener implements RecognitionListener
+    {
+        @Override
+        public void onBeginningOfSpeech()
+        {
+            Log.d(TAG, "onBeginningOfSpeech");
+        }
+
+        @Override
+        public void onBufferReceived(byte[] buffer)
+        {
+
+        }
+
+        @Override
+        public void onEndOfSpeech()
+        {
+            Log.d(TAG, "onEndOfSpeech");
+        }
+
+        @Override
+        public void onError(int error)
+        {
+            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+
+            Log.e(TAG, "error = " + error);
+        }
+
+        @Override
+        public void onEvent(int eventType, Bundle params)
+        {
+
+        }
+
+        // continuously check partial results
+        @Override
+        public void onPartialResults(Bundle partialResults)
+        {
+
+        }
+
+        @Override
+        public void onReadyForSpeech(Bundle params)
+        {
+            Log.d(TAG, "ready for speech");
+//            speakButton.setImageResource(R.drawable.ic_stop);
+            mIsListening = true;
+        }
+
+        // if there were no matches found, give error
+        @Override
+        public void onResults(Bundle results)
+        {
+//            speakButton.setImageResource(R.drawable.ic_mic);
+            mIsListening = false;
+
+            ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
+            boolean matchFound = false;
+            for (int i = 0; matches != null && i < matches.size() && !matchFound; i++) {
+                for (String word : matches.get(i).split(" ")) {
+                    if (!matchFound) {
+                        matchFound = handleVoice(word);
+                    }
+                }
+            }
+
+            if (!matchFound) {
+                Toast.makeText(MainActivity.this, "Command not recognized", Toast.LENGTH_SHORT).show();
+            }
+        }
+
+        @Override
+        public void onRmsChanged(float rms)
+        {
+
+        }
+    }
+
     private void buttonInit() {
         mVoiceFab = findViewById(R.id.voice);
-        //mVoiceFab.setOnClickListener(this);
+        mVoiceFab.setOnClickListener(this);
         Button btn = findViewById(R.id.btnReset);
 
         btn.setOnClickListener(new View.OnClickListener() {
@@ -410,5 +553,53 @@ public class MainActivity extends AppCompatActivity {
             }
         }
         isModelPlaced = false;
+    }
+
+    @Override
+    public void onClick(View view) {
+        switch (view.getId()) {
+            case R.id.voice:
+                if (!mIsListening)
+                {
+                    // check RECORD_AUDIO permission, https://developer.android.com/training/permissions/requesting#java
+                    if (ContextCompat.checkSelfPermission(this,
+                            Manifest.permission.RECORD_AUDIO)
+                            != PackageManager.PERMISSION_GRANTED) {
+                        // Permission is not granted
+                        // Should we show an explanation?
+                        if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                                Manifest.permission.RECORD_AUDIO)) {
+                            new AlertDialog.Builder(this)
+                                    .setTitle("Request to Record Audio")
+                                    .setMessage("To use voice commands, MyBuddy needs to be able to record audio")
+                                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+                                        @Override
+                                        public void onClick(DialogInterface dialogInterface, int i) {
+                                            //Prompt the user once explanation has been shown
+                                            ActivityCompat.requestPermissions(MainActivity.this,
+                                                    new String[]{Manifest.permission.RECORD_AUDIO},
+                                                    PERMISSION_REQUEST_RECORD_AUDIO);
+                                        }
+                                    })
+                                    .create()
+                                    .show();
+                        } else {
+                            // No explanation needed; request the permission
+                            ActivityCompat.requestPermissions(this,
+                                    new String[]{Manifest.permission.RECORD_AUDIO},
+                                    PERMISSION_REQUEST_RECORD_AUDIO);
+                            onClick(view);
+                        }
+                    } else {
+                        // Permission has already been granted
+                        mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
+                    }
+                } else {
+                    mSpeechRecognizer.cancel();
+                }
+                break;
+            default:
+                break;
+        }
     }
 }
