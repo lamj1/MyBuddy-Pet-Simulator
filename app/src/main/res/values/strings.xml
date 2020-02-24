@@ -11,4 +11,8 @@
     <string name="login_error_title">Error!</string>
     <string name="password_confirmation_hint">Password Again</string>
 
+    <!-- Top App Bar Drawer Open Close -->
+    <string name="open_drawer">Open Drawer</string>
+    <string name="close_drawer">Close Drawer</string>
+
 </resources>
