@@ -71,6 +71,8 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -93,6 +95,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Config mArConfig;
     private boolean mInstallRequested;
     private boolean mEnableAutoFocus;
+    private boolean firstPlacement = false;
 
     private FloatingActionButton mVoiceFab;
 
@@ -234,19 +237,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
 
-        //Automatically load pet model when plane detected
+        //Automatically load pet model when plane detected on running app for first time
         //https://www.youtube.com/watch?v=ntEBeB37p5Q&list=PLsOU6EOcj51cEDYpCLK_bzo4qtjOwDWfW&index=18
         mArFragment.getArSceneView().getScene().addOnUpdateListener(this::onPlaneDetection);
 
         //TODO Food bowl
-//        // When tapping on the AR plane, the corgi will appear!
-//        mArFragment.setOnTapArPlaneListener(
-//                (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
-//                    if (mCorgi == null) {
-//                        return;
-//                    }
-//                    // Create the Anchor.
-//                    Anchor anchor = hitResult.createAnchor();
+        // When tapping on the AR plane, the corgi will appear!
+        // Option to tap model available after first reset
+        mArFragment.setOnTapArPlaneListener(
+                (HitResult hitResult, Plane plane, MotionEvent motionEvent) -> {
+                    if (isModelPlaced) {
+                        return;
+                    }
+
+                    if (mCorgi == null) {
+                        return;
+                    }
+                    // Create the Anchor.
+                    Anchor anchor = hitResult.createAnchor();
+                    loadPet(anchor);
 //                    AnchorNode anchorNode = new AnchorNode(anchor);
 //                    anchorNode.setParent(mArFragment.getArSceneView().getScene());
 //
@@ -255,7 +264,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                    andy.setParent(anchorNode);
 //                    andy.setRenderable(mCorgi);
 //                    andy.select();
-//                });
+                });
 
         drawerInit();
 
@@ -280,8 +289,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //Event listener triggered when plane detected in sceneform
     private void onPlaneDetection(FrameTime frameTime) {
-        //Prevent model duplicates
-        if (isModelPlaced) {
+        //Prevent model duplicates and account for first placement of the model
+        if (isModelPlaced || firstPlacement) {
             return;
         }
 
@@ -304,6 +313,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //Function to load pet model created with blender
     private void loadPet(Anchor anchor) {
         isModelPlaced = true;
+        firstPlacement = true;
 
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
@@ -499,8 +509,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 onClear();
-                mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
-                mArFragment.getArSceneView().getScene().addOnUpdateListener(MainActivity.this::onPlaneDetection);
+                isModelPlaced = false;
+
+//                new Timer().schedule(new TimerTask() {
+//                    @Override
+//                    public void run() {
+//                        // this code will be executed after 2 seconds
+//                        mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
+//                        mArFragment.getArSceneView().getScene().addOnUpdateListener(MainActivity.this::onPlaneDetection);
+//                        isModelPlaced = false;
+//                    }
+//                }, 5000);
+//                isModelPlaced = false;
+//                firstPlacement = false;
+//                mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
+//                mArFragment.getArSceneView().getScene().addOnUpdateListener(MainActivity.this::onPlaneDetection);
             }
         });
     }
@@ -577,7 +600,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 node.setParent(null);
             }
         }
-        isModelPlaced = false;
     }
 
     @Override
