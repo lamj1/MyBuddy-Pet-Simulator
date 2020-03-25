@@ -67,8 +67,3 @@ sceneform.asset('sampledata/models/Corgi3.obj',
         'default',
         'sampledata/models/Corgi3.sfa',
         'src/main/assets/Corgi3')
-
-sceneform.asset('sampledata/models/Dog.obj',
-        'default',
-        'sampledata/models/Dog.sfa',
-        'src/main/assets/Dog')

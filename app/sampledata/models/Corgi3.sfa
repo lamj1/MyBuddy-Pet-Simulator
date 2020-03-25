@@ -63,7 +63,7 @@
     file: 'sampledata/models/Corgi3.obj',
     name: 'Corgi3',
     recenter: 'root',
-    scale: 0.1,
+    scale: 0.45726699999999998,
   },
   version: '0.54:2',
 }
