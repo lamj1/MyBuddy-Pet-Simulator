@@ -37,22 +37,27 @@ dependencies {
 
     // Firebase
     // https://firebase.google.com/docs/android/setup#available-libraries
-    implementation 'com.google.firebase:firebase-analytics:17.2.2'
+    implementation 'com.google.firebase:firebase-analytics:17.2.3'
     // Firebase Authentication
-    implementation 'com.google.firebase:firebase-auth:19.2.0'
+    implementation 'com.google.firebase:firebase-auth:19.3.0'
     // Firebase Google sign in
     implementation 'com.google.android.gms:play-services-auth:17.0.0'
+    // Firebase Firestore Database
+    implementation 'com.google.firebase:firebase-firestore:21.4.1'
+
 
     // Provides ArFragment, and other UX resources.
     implementation 'com.google.ar.sceneform.ux:sceneform-ux:1.15.0'
     // Alternatively, use ArSceneView without the UX dependency.
     implementation 'com.google.ar.sceneform:core:1.15.0'
+    implementation "com.google.ar.sceneform:animation:1.15.0"
     // ARCore library
     implementation 'com.google.ar:core:1.15.0'
     implementation 'com.google.android.material:material:1.1.0'
 
     //Circular Image View https://github.com/hdodenhof/CircleImageView
     implementation 'de.hdodenhof:circleimageview:3.0.0'
+    implementation 'com.google.firebase:firebase-firestore:21.4.1'
 }
 
 apply plugin: 'com.google.ar.sceneform.plugin'
@@ -62,3 +67,8 @@ sceneform.asset('sampledata/models/Corgi3.obj',
         'default',
         'sampledata/models/Corgi3.sfa',
         'src/main/assets/Corgi3')
+
+sceneform.asset('sampledata/models/Dog.obj',
+        'default',
+        'sampledata/models/Dog.sfa',
+        'src/main/assets/Dog')

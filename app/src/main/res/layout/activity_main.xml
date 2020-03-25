@@ -9,15 +9,11 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        android:layout_height="match_parent"
+        app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintBottom_toBottomOf="parent"
         android:orientation="vertical"
         >
-
-        <include
-            android:id="@+id/toolbar"
-            layout="@layout/app_bar"></include>
-
 
         <fragment
             android:id="@+id/sceneform_fragment"
@@ -26,8 +22,8 @@
             android:layout_height="match_parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintEnd_toEndOf="parent"
-            app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintTop_toTopOf="parent" />
+            app:layout_constraintStart_toEndOf="parent"
+            app:layout_constraintTop_toBottomOf="parent" />
 
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/voice"
@@ -83,12 +79,24 @@
             android:id="@+id/btnReset"
             android:layout_width="88dp"
             android:layout_height="48dp"
-            android:layout_marginEnd="16dp"
             android:layout_marginBottom="8dp"
             android:text="Reset"
+            app:layout_constraintBottom_toTopOf="@id/voice"
+            app:layout_constraintStart_toStartOf="@id/voice" />
+
+        <ImageView
+            android:id="@+id/btn_menu"
+            android:layout_width="48dp"
+            android:layout_height="48dp"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintEnd_toEndOf="parent" />
-  
+            app:layout_constraintEnd_toEndOf="parent"
+            app:layout_constraintHorizontal_bias="0.03"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintVertical_bias="0.03"
+            app:maxImageSize="56dp"
+            app:srcCompat="@drawable/ic_menu_black_24dp" />
+
     </androidx.constraintlayout.widget.ConstraintLayout>
 
     <com.google.android.material.navigation.NavigationView

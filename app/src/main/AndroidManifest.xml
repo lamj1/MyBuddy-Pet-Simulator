@@ -8,14 +8,10 @@
  "AR Required" apps must declare minSdkVersion ≥ 24
          Already done in build.gradle app file
     -->
-<!--    <uses-sdk android:minSdkVersion="24" />-->
-
+    <!-- <uses-sdk android:minSdkVersion="24" /> -->
     <!-- ARCore needs camera -->
-    <uses-permission android:name="android.permission.CAMERA" />
-
-    <!-- Voice commands need record audio -->
+    <uses-permission android:name="android.permission.CAMERA" /> <!-- Voice commands need record audio -->
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
-
     <!--
  Indicates that the app requires ARCore ("AR Required"). Ensures the app is
          visible only in the Google Play Store on devices that support ARCore.
@@ -29,16 +25,23 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
-        <activity android:name=".SignUpActivity"></activity>
-        <activity android:name=".LogInActivity" />
-        <activity android:name=".MainActivity"
-            android:label="My Buddy"
+        <activity android:name=".Intro.IntroActivity"></activity>
+
+        <activity android:name=".WelcomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+
+        <activity android:name=".SignUpActivity" />
+        <activity android:name=".LogInActivity" />
+        <activity
+            android:name=".MainActivity"
+            android:label="My Buddy"
+            android:theme="@style/AppTheme.NoActionBar">
         </activity>
         <!--
  Indicates that the app requires ARCore ("AR Required"). Causes the Google

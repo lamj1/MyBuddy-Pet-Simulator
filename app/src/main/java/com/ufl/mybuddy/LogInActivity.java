@@ -25,6 +25,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.ufl.mybuddy.Intro.IntroActivity;
 
 public class LogInActivity extends AppCompatActivity implements View.OnClickListener {
 
@@ -92,7 +93,7 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
     // basically when a user is made in log in from instance, go to main activity logged in.
     private void updateUI(FirebaseUser user) {
         if (user != null) {
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, WelcomeActivity.class);
             //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);
@@ -139,7 +140,20 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
                             // Sign in success, update UI with the signed-in user's information
                             Log.d(TAG, "signInWithCredential:success");
                             FirebaseUser user = mFirebaseAuth.getCurrentUser();
-                            updateUI(user);
+
+                            // https://stackoverflow.com/questions/39550149/check-if-user-is-authenticated-for-the-first-time-in-firebase-google-authenticat
+                            boolean isNew = task.getResult().getAdditionalUserInfo().isNewUser();
+                            Log.d(TAG, "onComplete: " + (isNew ? "new user" : "old user"));
+
+                            // If the user is logging in for the first time.
+                            if (isNew) {
+                                Intent intent = new Intent(LogInActivity.this, IntroActivity.class);
+                                //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                                //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                                startActivity(intent);
+                            } else {
+                                updateUI(user);
+                            }
                         } else {
                             // If sign in fails, display a message to the user.
                             Log.w(TAG, "signInWithCredential:failure", task.getException());

@@ -24,6 +24,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
 import android.widget.Toast;
@@ -63,6 +64,9 @@ import com.google.ar.core.exceptions.UnavailableApkTooOldException;
 import com.google.ar.core.exceptions.UnavailableArcoreNotInstalledException;
 import com.google.ar.core.exceptions.UnavailableSdkTooOldException;
 import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationException;
+import com.google.firebase.firestore.DocumentReference;
+import com.google.firebase.firestore.DocumentSnapshot;
+import com.google.firebase.firestore.FirebaseFirestore;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -96,9 +100,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private NavigationView mNavigationView;
     private CircleImageView mNavProfileImage;
     private DrawerLayout mDrawerLayout;
-    private ActionBarDrawerToggle mActionBarDrawerToggle;
-    private Toolbar mToolbar;
     private TextView mProfileName;
+    private ImageView mBtnDrawer;
 
     // Google Sign in
     private GoogleSignInClient mGoogleSignInClient;
@@ -122,7 +125,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // Check if user is signed in (non-null) and update UI accordingly.
         mFirebaseUser = mFirebaseAuth.getCurrentUser();
         if (mFirebaseUser == null) {
-            // Not logged in, launch the Log In activity
+            // Not logged in, launch the Log In activity, double check herez
             loadLogInView();
         } else {
             // Load it up.
@@ -305,7 +308,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
         ModelRenderable.builder()
-                .setSource(this, Uri.parse("Corgi3.sfb"))
+                .setSource(this, Uri.parse("Corgi.sfb"))
                 .build()
                 .thenAccept(renderable -> {
                     mCorgi = renderable;
@@ -330,9 +333,30 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void drawerInit() {
         mDrawerLayout = findViewById(R.id.drawable_layout);
         mNavigationView = findViewById(R.id.navigation_view);
+        mBtnDrawer = findViewById(R.id.btn_menu);
         View navView = mNavigationView.inflateHeaderView(R.layout.navigation_header);
         mNavProfileImage = navView.findViewById(R.id.profile_image);
+
         mProfileName = navView.findViewById(R.id.profile_name);
+        FirebaseFirestore db = FirebaseFirestore.getInstance();
+        DocumentReference nameRef = db
+                .collection("users")
+                .document(mFirebaseUser.getUid());
+        nameRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+            @Override
+            public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                if (task.isSuccessful()) {
+                    DocumentSnapshot document = task.getResult();
+                    String name = document.getData().get("name").toString();
+                    Log.d(TAG, "Setting name: " + name);
+                    mProfileName.setText(name);
+                } else {
+                    Log.d(TAG, "Couldn't get name. Probably shouldn't be in MainActivity");
+                }
+            }
+        });
+
+
         mNavigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
             @Override
             public boolean onNavigationItemSelected(@NonNull MenuItem item) {
@@ -340,11 +364,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 return false;
             }
         });
-        mToolbar = findViewById(R.id.toolbar);
-        setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle("My Buddy");
-        mActionBarDrawerToggle = new ActionBarDrawerToggle(MainActivity.this, mDrawerLayout, mToolbar, R.string.open_drawer, R.string.close_drawer);
-        mActionBarDrawerToggle.syncState();
+        mBtnDrawer.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                mDrawerLayout.openDrawer(Gravity.LEFT);
+            }
+        });
     }
 
     private void voiceInit() {

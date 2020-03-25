@@ -18,6 +18,7 @@ import com.google.firebase.auth.AuthResult;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.UserProfileChangeRequest;
+import com.ufl.mybuddy.Intro.IntroActivity;
 
 public class SignUpActivity extends AppCompatActivity {
 
@@ -134,7 +135,7 @@ public class SignUpActivity extends AppCompatActivity {
             //findViewById(R.id.signInButton).setVisibility(View.GONE);
             //findViewById(R.id.googleSignInButton).setVisibility(View.VISIBLE);
 
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, IntroActivity.class);
             intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
             startActivity(intent);

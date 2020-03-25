@@ -15,6 +15,14 @@
       },
       "oauth_client": [
         {
+          "client_id": "613093678443-eh7cu0kdrta04nu7kh1dt4eqe37c8j40.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.ufl.mybuddy",
+            "certificate_hash": "d74900c77c8fbafa25c3fad1d666989b42b41c7c"
+          }
+        },
+        {
           "client_id": "613093678443-ql7r8trdkge4994vjpfjp3lgdel61bbu.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
