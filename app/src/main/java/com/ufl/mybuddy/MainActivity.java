@@ -633,7 +633,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         public void onReadyForSpeech(Bundle params)
         {
             Log.d(TAG, "ready for speech");
-//            speakButton.setImageResource(R.drawable.ic_stop);
+            mVoiceFab.setImageResource(R.drawable.ic_voice_gray_24dp);
             mIsListening = true;
         }
 
@@ -641,9 +641,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onResults(Bundle results)
         {
-//            speakButton.setImageResource(R.drawable.ic_mic);
-            mIsListening = false;
-
             ArrayList<String> matches = results.getStringArrayList(SpeechRecognizer.RESULTS_RECOGNITION);
             boolean matchFound = false;
             for (int i = 0; matches != null && i < matches.size() && !matchFound; i++) {
@@ -657,6 +654,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (!matchFound) {
                 Toast.makeText(MainActivity.this, "Command not recognized", Toast.LENGTH_SHORT).show();
             }
+
+            mVoiceFab.setImageResource(R.drawable.ic_voice_red_24dp);
+            mIsListening = false;
         }
 
         @Override
