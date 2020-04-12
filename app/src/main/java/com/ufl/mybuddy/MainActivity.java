@@ -12,11 +12,14 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
 import android.animation.ObjectAnimator;
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
 import android.os.Bundle;
+import android.os.Handler;
 import android.speech.RecognizerIntent;
 import android.speech.RecognitionListener;
 import android.speech.SpeechRecognizer;
@@ -75,10 +78,14 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 
+import org.ogasimli.healthbarview.HealthBarView;
+
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Random;
+import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -118,7 +125,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean poseReceived = false;
     private boolean isAnimated = false;
 
+    // Foating Action Buttons users can tap on.
     private FloatingActionButton mVoiceFab;
+    private FloatingActionButton mBowlFab;
+    private FloatingActionButton mFoodBowlFab;
+    private FloatingActionButton mWaterBowlFab;
+
+    // Bowl has been set to not tapped yet.
+    private boolean mRotate = false;
+
+    // Hunger and Thirst Bars
+    private HealthBarView mHungerBar;
+    private HealthBarView mThirstBar;
 
     // Navigation Bar
     private NavigationView mNavigationView;
@@ -242,6 +260,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         if (mSpeechRecognizer != null) {
             mSpeechRecognizer.destroy();
         }
+        mTimerHandler.removeCallbacks(updater);
     }
 
     // Function to load log in view if Firebase user is not logged in.
@@ -256,6 +275,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private void init() {
         buttonInit();
+
+        barInit();
 
         mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
 
@@ -303,6 +324,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
       
     }
+
 
     //Event listener triggered when plane detected in sceneform
     private void onPlaneDetection(FrameTime frameTime) {
@@ -647,6 +669,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void buttonInit() {
         mVoiceFab = findViewById(R.id.voice);
         mVoiceFab.setOnClickListener(this);
+
+        mBowlFab = findViewById(R.id.bowl);
+        mFoodBowlFab = findViewById(R.id.bowl_food);
+        mWaterBowlFab = findViewById(R.id.bowl_water);
+
+
+        // Setting bowls to be invisible at the start
+        mFoodBowlFab.setVisibility(View.GONE);
+        mFoodBowlFab.setTranslationY(mFoodBowlFab.getHeight());
+        mFoodBowlFab.setAlpha(0f);
+        mWaterBowlFab.setVisibility(View.GONE);
+        mWaterBowlFab.setTranslationY(mWaterBowlFab.getHeight());
+        mWaterBowlFab.setAlpha(0f);
+
+
+
+        mBowlFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openOrCloseBowls();
+            }
+        });
+
+        mFoodBowlFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openOrCloseBowls();
+                int hunger = (int) mHungerBar.getValue();
+                hunger = Math.max(90, Math.min(hunger + 10, 100));
+                updateBar("hunger", hunger);
+                Toast.makeText(MainActivity.this, "Food Bowl Tapped!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
+        mWaterBowlFab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                openOrCloseBowls();
+                int thirst = (int) mThirstBar.getValue();
+                thirst = Math.max(90, Math.min(thirst + 10, 100));
+                updateBar("thirst", thirst);
+                Toast.makeText(MainActivity.this, "Water Bowl Tapped!", Toast.LENGTH_SHORT).show();
+            }
+        });
+
         Button btn = findViewById(R.id.btnReset);
 
         btn.setOnClickListener(new View.OnClickListener() {
@@ -672,9 +739,138 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         });
     }
 
+    private void openOrCloseBowls() {
+        mRotate = rotateFab(mBowlFab, !mRotate);
+        if(mRotate) {
+            showIn(mFoodBowlFab);
+            showIn(mWaterBowlFab);
+        } else{
+            showOut(mFoodBowlFab);
+            showOut(mWaterBowlFab);
+        }
+    }
 
+    private boolean rotateFab(final View v, boolean rotate) {
+        v.animate().setDuration(300)
+            .setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                }
+            })
+            .rotation(rotate ? 360f : 0f);
 
+        return rotate;
+    }
 
+    private void showIn(final View v) {
+        v.setVisibility(View.VISIBLE);
+        v.setAlpha(0f);
+        v.setTranslationY(v.getHeight());
+        v.animate()
+                .setDuration(300)
+                .translationY(0)
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                    }
+                })
+                .alpha(1f)
+                .start();
+    }
+    private void showOut(final View v) {
+        v.setVisibility(View.VISIBLE);
+        v.setAlpha(1f);
+        v.setTranslationY(0);
+        v.animate()
+                .setDuration(300)
+                .translationY(v.getHeight())
+                .setListener(new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        v.setVisibility(View.GONE);
+                        super.onAnimationEnd(animation);
+                    }
+                }).alpha(0f)
+                .start();
+    }
+
+    //Either update the "hunger" or "thirst" value
+    private void updateBar(String type, int value) {
+        if (type.equals("hunger") || type.equals("thirst")) {
+            FirebaseFirestore db = FirebaseFirestore.getInstance();
+            DocumentReference userRef = db
+                    .collection("users")
+                    .document(mFirebaseUser.getUid());
+            Map<String, Object> values = new HashMap<>();
+
+            if (type.equals("hunger")) {
+                mHungerBar.setValue(value);
+                values.put("hungerValue", value);
+            } else if (type.equals("thirst")) {
+                mThirstBar.setValue(value);
+                values.put("thirstValue", value);
+            }
+
+            userRef.update(values);
+        }
+    }
+
+    // Initializes the Hunger and Thirst Bars.
+    // https://stackoverflow.com/questions/40103742/update-textview-every-second-in-android
+    Runnable updater;
+    final Handler mTimerHandler = new Handler();
+    //1000 is 1 second. 60,000 is 1 minute. 30,000 is 30 seconds
+    private int time = 60000;
+
+    // Uses https://github.com/ogasimli/HealthBarView
+    private void barInit() {
+        mHungerBar = findViewById(R.id.hunger_bar);
+        mThirstBar = findViewById(R.id.thirst_bar);
+
+        updater = new Runnable() {
+            @Override
+            public void run() {
+                FirebaseFirestore db = FirebaseFirestore.getInstance();
+                DocumentReference userRef = db
+                        .collection("users")
+                        .document(mFirebaseUser.getUid());
+                userRef.get().addOnCompleteListener(new OnCompleteListener<DocumentSnapshot>() {
+                    @Override
+                    public void onComplete(@NonNull Task<DocumentSnapshot> task) {
+                        if (task.isSuccessful()) {
+                            DocumentSnapshot document = task.getResult();
+                            int hungerValue = document.getLong("hungerValue").intValue();
+                            int thirstValue = document.getLong("thirstValue").intValue();
+                            if (hungerValue == 0 && thirstValue == 0) {
+                                mHungerBar.setValue(hungerValue);
+                                mThirstBar.setValue(thirstValue);
+                                Log.d(TAG, "hunger and thirst are 0.");
+                            } else {
+                                hungerValue = Math.max(hungerValue - 1, 0);
+                                thirstValue = Math.max(thirstValue - 2, 0);
+                                mHungerBar.setValue(hungerValue);
+                                mThirstBar.setValue(thirstValue);
+                                Map<String, Object> values = new HashMap<>();
+                                //values.put("name", document.getData().get("name").toString());
+                                values.put("hungerValue", hungerValue);
+                                values.put("thirstValue", thirstValue);
+                                userRef.update(values);
+                                Log.d(TAG, "Got and Setting hunger and thirst as: hunger: " + hungerValue + " thirst: " + thirstValue);
+                            }
+                        } else {
+                            Log.d(TAG, "Couldn't get hunger and thirst values.");
+                        }
+                    }
+                });
+
+                mTimerHandler.postDelayed(updater,time);
+            }
+        };
+        mTimerHandler.post(updater);
+
+    }
 
     private void UserMenuSelector(MenuItem item) {
         switch (item.getItemId()) {
@@ -689,10 +885,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
 
             case R.id.nav_settings: {
-                //Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
-                //startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, SettingsActivity.class);
+                startActivity(intent);
                 //SWITCH SETTINGS ACTIVITY
-                Toast.makeText(this, "Settings Selected!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Settings Selected!", Toast.LENGTH_SHORT).show();
                 break;
             }
 
