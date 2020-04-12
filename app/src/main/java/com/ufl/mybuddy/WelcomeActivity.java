@@ -7,6 +7,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.util.Log;
+import android.view.animation.AlphaAnimation;
+import android.widget.TextView;
 
 import com.google.android.gms.tasks.OnCompleteListener;
 import com.google.android.gms.tasks.Task;
@@ -25,6 +27,14 @@ public class WelcomeActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_welcome);
+
+        // Make the Welcome message fade in for 1.5 seconds.
+        // https://stackoverflow.com/questions/11444051/textview-animation-fade-in-wait-fade-out
+        AlphaAnimation fadeIn = new AlphaAnimation(0.0f, 1.0f);
+        TextView welcome = findViewById(R.id.welcome_message);
+        fadeIn.setDuration(1500);
+        fadeIn.setFillAfter(true);
+        welcome.startAnimation(fadeIn);
 
         // Allows screen to change to next activity.
         new Handler().postDelayed(new Runnable() {
@@ -61,17 +71,20 @@ public class WelcomeActivity extends AppCompatActivity {
                                         Log.d(TAG, "Logged in, start Main Activity.");
                                         Intent main = new Intent(WelcomeActivity.this, MainActivity.class);
                                         startActivity(main);
+                                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                                     } else {
                                         // Logged in, have not set name yet. Start IntroActivity.
                                         Log.d(TAG, "Logged in, have not set name yet. Start IntroActivity.");
                                         Intent main = new Intent(WelcomeActivity.this, IntroActivity.class);
                                         startActivity(main);
+                                        overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                                     }
                                 } else {
                                     // Logged in, have not set name yet. Start IntroActivity.
                                     Log.d(TAG, "Logged in, have not set name yet. Start IntroActivity.");
                                     Intent main = new Intent(WelcomeActivity.this, IntroActivity.class);
                                     startActivity(main);
+                                    overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                                 }
                             } else {
                                 Log.d(TAG, "get failed with ", task.getException());
@@ -79,6 +92,7 @@ public class WelcomeActivity extends AppCompatActivity {
                                 Log.d(TAG, "Failed to connect to DB, start Login Activity.");
                                 Intent main = new Intent(WelcomeActivity.this, LogInActivity.class);
                                 startActivity(main);
+                                overridePendingTransition(android.R.anim.fade_in, android.R.anim.fade_out);
                             }
                         }
                     });

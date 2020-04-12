@@ -49,6 +49,10 @@
         <meta-data
             android:name="com.google.ar.core"
             android:value="required" />
+        <meta-data
+            android:name="preloaded_fonts"
+            android:resource="@array/preloaded_fonts" />
+
         <activity
             android:name="com.ufl.mybuddy.SettingsActivity"
             android:parentActivityName="com.ufl.mybuddy.MainActivity"
