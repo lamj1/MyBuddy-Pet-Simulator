@@ -14,6 +14,7 @@ import android.Manifest;
 import android.animation.ObjectAnimator;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
+import android.animation.Animator.AnimatorListener;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -28,6 +29,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.Animation;
 import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
@@ -57,6 +59,8 @@ import com.google.ar.sceneform.Node;
 import com.google.ar.sceneform.SkeletonNode;
 import com.google.ar.sceneform.Sun;
 import com.google.ar.sceneform.animation.ModelAnimator;
+import com.google.ar.sceneform.math.Quaternion;
+import com.google.ar.sceneform.math.Vector3;
 import com.google.ar.sceneform.math.Vector3Evaluator;
 import com.google.ar.sceneform.rendering.AnimationData;
 import com.google.ar.sceneform.rendering.ModelRenderable;
@@ -124,6 +128,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Pose pose;
     private boolean poseReceived = false;
     private boolean isAnimated = false;
+    private boolean firstAnimation = false;
 
     // Foating Action Buttons users can tap on.
     private FloatingActionButton mVoiceFab;
@@ -302,6 +307,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     // Create the Anchor.
                     anchor = hitResult.createAnchor();
                     loadPet(anchor);
+                    firstAnimation = true;
+
+                    if (corgi != null && firstAnimation) {
+                        firstAnimation = false;
+                        Log.d(TAG, "Corgi not null");
+                        animate(mCorgi, "Armature|idle");
+                    }
                 });
 
         drawerInit();
@@ -344,6 +356,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
                 //Load pet model
                 loadPet(anchor);
+                firstAnimation = true;
                 Log.d(TAG, "Pet loaded");
 
                 break;
@@ -385,9 +398,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             endLocation = new AnchorNode(randAnchor);
             endLocation.setParent(mArFragment.getArSceneView().getScene());
 
-            Log.d(TAG, "Animate walk");
-            animateWalk();
+
+//            Log.d(TAG, "Animate walk");
+//            animateWalk();
         }
+
+        //Animate idle when first model placed
+        if (corgi != null && firstAnimation) {
+            firstAnimation = false;
+            Log.d(TAG, "Corgi not null");
+            animate(mCorgi, "Armature|idle");
+        }
+
+        // Ensure corgi model is always facing the camera
+//        if (corgi != null) {
+//            Vector3 cameraPosition = mArFragment.getArSceneView().getScene().getCamera().getForward();
+//            Vector3 corgiPosition = corgi.getWorldPosition();
+//            Vector3 direction = Vector3.subtract(cameraPosition, corgiPosition);
+//            Quaternion lookRotation = Quaternion.lookRotation(direction, Vector3.up());
+//            corgi.setWorldRotation(lookRotation);
+//        }
     }
 
     //Generate random positions on plane for anchor
@@ -420,7 +450,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
         ModelRenderable.builder()
-                .setSource(this, Uri.parse("Corgi_Sit_and_layDown2.sfb"))
+                .setSource(this, Uri.parse("Corgi_Combined2.sfb"))
                 .build()
                 .thenAccept(renderable -> {
                     mCorgi = renderable;
@@ -446,9 +476,51 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         });
     }
 
+    // Place bowl in front of pet model
+//    private void getAnchors(DataSnapshot dataSnapshot){
+//        double temp_x=0.0;
+//        double temp_y=0.0;
+//        double temp_z=0.0;
+//        long   temp_val=0;
+//        String temp_room="";
+//        float[] translation= new float[3];
+//        float[] rotation = {0.0f,0.0f,0.0f,0.0f};
+//        Vector3 wektor3;
+//        for(DataSnapshot ds : dataSnapshot.getChildren())
+//        {
+//            //TODO: create anchors with downloaded values when in the same position use hitpose.creatanchor with pose.
+//
+//            ObjectConversion vars = ds.getValue(ObjectConversion.class);
+//            temp_x = vars.getX();
+//            temp_y = vars.getY();
+//            temp_z = vars.getZ();
+//            temp_room = vars.getRoom();
+//            temp_val=vars.getType();
+//
+//            translation[0]=(float) temp_x;
+//            translation[1]=(float) temp_y;
+//            translation[2]=(float) temp_z;
+//            wektor3 = new Vector3((float)temp_x,(float)temp_y,(float)temp_z);
+//            Pose pose = new Pose(translation,rotation);
+//
+//            Anchor anchorx = download_hit_result.getTrackable().createAnchor(pose);
+//            AnchorNode anchorNodex = new AnchorNode(anchorx);
+//            anchorNodex.setParent(arFragment.getArSceneView().getScene());
+//            anchorNodex.setRenderable(andyRenderable);
+//        }
+//    }
+
     // Run animation on model
     private void animate(ModelRenderable renderable, String command) {
+        AnimatorListenerAdapter listenerAdapter;
+        if (isModelPlaced == false){
+            Toast.makeText(this, "Pet model not placed", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
         isAnimated = true;
+
+        // End any running animation
         if (animateModel != null && animateModel.isRunning()) {
             animateModel.end();
         }
@@ -462,8 +534,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         AnimationData animationData = renderable.getAnimationData(command);
 
         animateModel = new ModelAnimator(animationData, renderable);
+
+        // Set default idle animation to loop
+        if (command.equals("Armature|idle")) {
+            animateModel.setRepeatCount(Animation.INFINITE);
+            Log.d(TAG, "Idle animation");
+        }
+
         animateModel.start();
         count++;
+
+        if (!command.equals("Armature|idle")) {
+            //Animate idle when placed
+            listenerAdapter = new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    if (mCorgi != null) {
+                        Handler handler = new Handler();
+                        handler.postDelayed(new Runnable() {
+                            public void run() {
+                                Log.d(TAG, "Animation ended");
+                                animate(mCorgi, "Armature|idle");
+                            }
+                        }, 4500);   //4.5 second delay to allow current animation to complete
+                    }
+                }
+            };
+            listenerAdapter.onAnimationEnd(animateModel);
+        }
     }
 
     //Walk animation
@@ -557,26 +656,35 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         boolean matchFound = true;
         switch(command) {
             case "laydown":
-//                onClear();
-//                loadAnimation(anchor, "Cooper_layDown.sfb");
                 animate(mCorgi, "Armature|layDown");
                 Toast.makeText(this, "Your pet is laying down", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
+                break;
             case "rollover":
-//                onClear();
-//                loadAnimation(anchor, "Cooper_rollOver.sfb");
-//                animate(mCorgi);
+                animate(mCorgi, "Armature|rollOver");
                 Toast.makeText(this, "Your pet is rolling over", Toast.LENGTH_SHORT).show();
+                isAnimated = false;
                 break;
             case "eat":
+                animate(mCorgi, "Armature|eat");
                 Toast.makeText(this, "Your pet is eating", Toast.LENGTH_SHORT).show();
+                isAnimated = false;
                 break;
             case "play":
+                animate(mCorgi, "Armature|Play");
                 Toast.makeText(this, "Your pet is playing", Toast.LENGTH_SHORT).show();
                 break;
+            case "jump":
+                animate(mCorgi, "Armature|jump");
+                Toast.makeText(this, "Your pet is jumping", Toast.LENGTH_SHORT).show();
+                isAnimated = false;
+                break;
+            case "bow":
+                animate(mCorgi, "Armature|bow");
+                Toast.makeText(this, "Your pet is bowing", Toast.LENGTH_SHORT).show();
+                isAnimated = false;
+                break;
             case "sit":
-//                onClear();
-//                loadAnimation(anchor, "Cooper_sitDown.sfb");
                 animate(mCorgi, "Armature|sit");
                 Toast.makeText(this, "Your pet is sitting", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
