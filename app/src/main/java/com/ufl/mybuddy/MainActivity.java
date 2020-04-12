@@ -363,18 +363,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 firstAnimation = true;
                 Log.d(TAG, "Pet loaded");
 
-                animate(mCorgi, "Armature|idle");
-                AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
-                    @Override
-                    public void onAnimationEnd(Animator animation) {
-                        super.onAnimationEnd(animation);
-                        if (mCorgi != null) {
-                            animate(mCorgi, "Armature|idle");
-                        }
-                    }
-                };
-                listenerAdapter.onAnimationEnd(animateModel);
-
                 break;
             }
         }
