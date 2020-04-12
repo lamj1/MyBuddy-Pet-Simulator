@@ -649,8 +649,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 this.getPackageName());
 
 //        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_PARTIAL_RESULTS, true);
-//        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_SPEECH_INPUT_COMPLETE_SILENCE_LENGTH_MILLIS, 100);
-//        mSpeechRecognizerIntent.putExtra(RecognizerIntent.EXTRA_MAX_RESULTS, 3);
 
         SpeechRecognitionListener listener = new SpeechRecognitionListener();
 
@@ -719,15 +717,17 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         @Override
         public void onEndOfSpeech()
         {
-            Log.d(TAG, "onEndOfSpeech");
+            Log.d(TAG, "end of speech");
+            mVoiceFab.setImageResource(R.drawable.ic_voice_red_24dp);
+            mIsListening = false;
         }
 
         @Override
         public void onError(int error)
         {
-            mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
-
-            Log.e(TAG, "error = " + error);
+            Log.e(TAG, "voice error = " + error);
+            mSpeechRecognizer.cancel();
+            this.onEndOfSpeech();
         }
 
         @Override
@@ -768,9 +768,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             if (!matchFound) {
                 Toast.makeText(MainActivity.this, "Command not recognized", Toast.LENGTH_SHORT).show();
             }
-
-            mVoiceFab.setImageResource(R.drawable.ic_voice_red_24dp);
-            mIsListening = false;
         }
 
         @Override
@@ -1114,7 +1111,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         mSpeechRecognizer.startListening(mSpeechRecognizerIntent);
                     }
                 } else {
-                    mSpeechRecognizer.cancel();
+                    mSpeechRecognizer.stopListening();
                 }
                 break;
             default:
