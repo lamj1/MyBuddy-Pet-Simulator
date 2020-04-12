@@ -53,7 +53,6 @@ public class WelcomeActivity extends AppCompatActivity {
                     Intent login = new Intent(WelcomeActivity.this, LogInActivity.class);
                     startActivity(login);
                 } else {
-
                     FirebaseFirestore db = FirebaseFirestore.getInstance();
                     DocumentReference docRef = db
                             .collection("users")
