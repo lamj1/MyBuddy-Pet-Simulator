@@ -77,6 +77,7 @@ import com.google.ar.core.exceptions.UnavailableUserDeclinedInstallationExceptio
 import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
+import com.squareup.picasso.Picasso;
 
 import org.ogasimli.healthbarview.HealthBarView;
 
@@ -141,6 +142,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     // Navigation Bar
     private NavigationView mNavigationView;
     private CircleImageView mNavProfileImage;
+    private Uri mPhoto;
     private DrawerLayout mDrawerLayout;
     private TextView mProfileName;
     private ImageView mBtnDrawer;
@@ -499,6 +501,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         mBtnDrawer = findViewById(R.id.btn_menu);
         View navView = mNavigationView.inflateHeaderView(R.layout.navigation_header);
         mNavProfileImage = navView.findViewById(R.id.profile_image);
+        mPhoto = mFirebaseUser.getPhotoUrl();
+        Picasso.with(MainActivity.this).load(mPhoto.toString()).placeholder(R.drawable.doggo).into(mNavProfileImage);
 
         mProfileName = navView.findViewById(R.id.profile_name);
         FirebaseFirestore db = FirebaseFirestore.getInstance();
@@ -714,13 +718,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         });
 
-        Button btn = findViewById(R.id.btnReset);
-
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                onClear();
-                isModelPlaced = false;
+//        Button btn = findViewById(R.id.btnReset);
+//
+//        btn.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View v) {
+//                onClear();
+//                isModelPlaced = false;
 
 //                new Timer().schedule(new TimerTask() {
 //                    @Override
@@ -735,8 +739,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                firstPlacement = false;
 //                mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
 //                mArFragment.getArSceneView().getScene().addOnUpdateListener(MainActivity.this::onPlaneDetection);
-            }
-        });
+//            }
+//        });
     }
 
     private void openOrCloseBowls() {
@@ -881,6 +885,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 //startActivity(intent);
                 //this.overridePendingTransition(0, 0);
                 Toast.makeText(this, "Home Selected!", Toast.LENGTH_SHORT).show();
+                break;
+            }
+
+            case R.id.nav_reset: {
+                onClear();
+                isModelPlaced = false;
                 break;
             }
 
