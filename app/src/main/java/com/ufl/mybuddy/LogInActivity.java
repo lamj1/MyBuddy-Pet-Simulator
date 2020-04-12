@@ -4,6 +4,7 @@ import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -25,6 +26,7 @@ import com.google.firebase.auth.FacebookAuthProvider;
 import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseUser;
 import com.google.firebase.auth.GoogleAuthProvider;
+import com.google.firebase.auth.UserProfileChangeRequest;
 import com.ufl.mybuddy.Intro.IntroActivity;
 
 public class LogInActivity extends AppCompatActivity implements View.OnClickListener {
@@ -40,6 +42,9 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
     protected GoogleSignInClient mGoogleSignInClient;
 
     private FirebaseAuth mFirebaseAuth;
+
+    // This is for setting the default photo for everyone's profile to be of the doggo!
+    private String mDownloadUrl = "https://firebasestorage.googleapis.com/v0/b/mybuddy-fb880.appspot.com/o/profile_images%2Fdoggo.PNG?alt=media&token=a9e30b6c-75a5-4d09-be9e-a2a1dd4f400d";
 
 
     @Override
@@ -147,6 +152,24 @@ public class LogInActivity extends AppCompatActivity implements View.OnClickList
 
                             // If the user is logging in for the first time.
                             if (isNew) {
+
+                                // This is for setting the default photo for everyone's profile to be of the doggo!
+                                UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
+                                        .setPhotoUri(Uri.parse(mDownloadUrl)).build();
+
+                                user.updateProfile(profileUpdates)
+                                    .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                        @Override
+                                        public void onComplete(@NonNull Task<Void> task) {
+                                            if (task.isSuccessful()) {
+                                                Log.d(TAG, "onCreate: Photo updated to profile.");
+                                            } else {
+                                                Log.e(TAG, "onCreate: **FAILURE** Photo updated to profile.");
+                                            }
+                                        }
+                                    });
+
+
                                 Intent intent = new Intent(LogInActivity.this, IntroActivity.class);
                                 //intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                                 //intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TASK);
