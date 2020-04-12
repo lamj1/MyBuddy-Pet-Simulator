@@ -8,7 +8,7 @@
     <color name="Purple">#800080</color>
     <color name="Red">#d61c1c</color>
     <color name="Green">#07db00</color>
-
+    <color name="Blue">#3169ff</color>
 
     <!-- colors for button style -->
     <color name="gradient_start_color">#4c84ff</color>

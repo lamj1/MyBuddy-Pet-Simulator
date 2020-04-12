@@ -1,6 +1,7 @@
 package com.ufl.mybuddy;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
@@ -34,6 +35,8 @@ public class SignUpActivity extends AppCompatActivity {
 
     private String mName;
 
+    // This is for setting the default photo for everyone's profile to be of the doggo!
+    private String mDownloadUrl = "https://firebasestorage.googleapis.com/v0/b/mybuddy-fb880.appspot.com/o/profile_images%2Fdoggo.PNG?alt=media&token=a9e30b6c-75a5-4d09-be9e-a2a1dd4f400d";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -87,31 +90,22 @@ public class SignUpActivity extends AppCompatActivity {
 
                                         // Got below code from https://stackoverflow.com/questions/38114358/firebase-setdisplayname-of-user-while-creating-user-android
                                         UserProfileChangeRequest profileUpdates = new UserProfileChangeRequest.Builder()
-                                                .setDisplayName(mName).build();
+                                                .setDisplayName(mName)
+                                                .setPhotoUri(Uri.parse(mDownloadUrl)).build();
+
 
                                         user.updateProfile(profileUpdates)
-                                                .addOnCompleteListener(new OnCompleteListener<Void>() {
-                                                    @Override
-                                                    public void onComplete(@NonNull Task<Void> task) {
-                                                        if (task.isSuccessful()) {
-                                                            Log.d(TAG, "onCreate: Name updated to profile.");
-                                                        } else {
-                                                            Log.e(TAG, "onCreate: **FAILURE** Name updated to profile.");
-                                                        }
+                                            .addOnCompleteListener(new OnCompleteListener<Void>() {
+                                                @Override
+                                                public void onComplete(@NonNull Task<Void> task) {
+                                                    if (task.isSuccessful()) {
+                                                        Log.d(TAG, "onCreate: Name and Photo updated to profile.");
+                                                    } else {
+                                                        Log.e(TAG, "onCreate: **FAILURE** Name and Photo updated to profile.");
                                                     }
-                                                });
-//                                        FirebaseFirestore db = FirebaseFirestore.getInstance();
-//                                        DocumentReference newUser = db
-//                                                .collection("users")
-//                                                .document(user.getUid());
-//                                        HashMap<String, String> userMap = new HashMap<String, String>();
-//                                        userMap.put("privacy_default", "friends");
-//                                        userMap.put("fullName", mName);
-//                                        userMap.put("user_id", newUser.getId());
-//                                        if (user.getPhotoUrl() != null) {
-//                                            userMap.put("profile_image", user.getPhotoUrl().toString());
-//                                        }
-//                                        newUser.set(userMap);
+                                                }
+                                            });
+
                                         updateUI(user);
                                     } else {
                                         // If sign in fails, display a message to the user.

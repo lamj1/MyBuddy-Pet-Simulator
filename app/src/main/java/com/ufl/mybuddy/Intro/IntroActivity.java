@@ -128,7 +128,7 @@ public class IntroActivity extends AppCompatActivity {
         btnGetStarted.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!editName.getText().toString().equals("")) {
+                if (!editName.getText().toString().trim().equals("")) {
                     FirebaseAuth mFirebaseAuth = FirebaseAuth.getInstance();
                     FirebaseUser user = mFirebaseAuth.getCurrentUser();
 
@@ -137,8 +137,9 @@ public class IntroActivity extends AppCompatActivity {
                             .collection("users")
                             .document(user.getUid());
                     Map<String, Object> name = new HashMap<>();
-                    name.put("name", editName.getText().toString());
-
+                    name.put("name", editName.getText().toString().trim());
+                    name.put("hungerValue", 85);
+                    name.put("thirstValue", 85);
                     newName.set(name);
 
                     //open welcome activity
