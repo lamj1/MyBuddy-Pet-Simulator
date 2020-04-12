@@ -11,6 +11,7 @@ import androidx.drawerlayout.widget.DrawerLayout;
 import androidx.recyclerview.widget.RecyclerView;
 
 import android.Manifest;
+import android.animation.ObjectAnimator;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -24,6 +25,7 @@ import android.view.Gravity;
 import android.view.MenuItem;
 import android.view.MotionEvent;
 import android.view.View;
+import android.view.animation.LinearInterpolator;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Button;
@@ -42,13 +44,18 @@ import com.google.ar.core.Config;
 import com.google.ar.core.Frame;
 import com.google.ar.core.HitResult;
 import com.google.ar.core.Plane;
+import com.google.ar.core.Pose;
 import com.google.ar.core.Session;
 import com.google.ar.core.TrackingState;
 import com.google.ar.sceneform.AnchorNode;
 import com.google.ar.sceneform.Camera;
 import com.google.ar.sceneform.FrameTime;
 import com.google.ar.sceneform.Node;
+import com.google.ar.sceneform.SkeletonNode;
 import com.google.ar.sceneform.Sun;
+import com.google.ar.sceneform.animation.ModelAnimator;
+import com.google.ar.sceneform.math.Vector3Evaluator;
+import com.google.ar.sceneform.rendering.AnimationData;
 import com.google.ar.sceneform.rendering.ModelRenderable;
 import com.google.ar.sceneform.ux.ArFragment;
 import com.google.ar.sceneform.ux.TransformableNode;
@@ -71,6 +78,7 @@ import com.google.firebase.firestore.FirebaseFirestore;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
+import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -96,6 +104,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean mInstallRequested;
     private boolean mEnableAutoFocus;
     private boolean firstPlacement = false;
+    private Anchor anchor;
+    private TransformableNode corgi;
+    private AnchorNode endLocation;
+
+    // AR Animation
+    private ModelAnimator animateModel;
+    private int count = 0;
+    private ObjectAnimator animateObject;
+    private Plane firstPlane;
+    private float timer;
+    private Pose pose;
+    private boolean poseReceived = false;
+    private boolean isAnimated = false;
 
     private FloatingActionButton mVoiceFab;
 
@@ -242,7 +263,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         //https://www.youtube.com/watch?v=ntEBeB37p5Q&list=PLsOU6EOcj51cEDYpCLK_bzo4qtjOwDWfW&index=18
         mArFragment.getArSceneView().getScene().addOnUpdateListener(this::onPlaneDetection);
 
+        mArFragment.getArSceneView().getScene().addOnUpdateListener(this::onFrame);
+
         //TODO Food bowl
+
         // When tapping on the AR plane, the corgi will appear!
         // Option to tap model available after first reset
         mArFragment.setOnTapArPlaneListener(
@@ -255,16 +279,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         return;
                     }
                     // Create the Anchor.
-                    Anchor anchor = hitResult.createAnchor();
+                    anchor = hitResult.createAnchor();
                     loadPet(anchor);
-//                    AnchorNode anchorNode = new AnchorNode(anchor);
-//                    anchorNode.setParent(mArFragment.getArSceneView().getScene());
-//
-//                    // Create the transformable andy and add it to the anchor.
-//                    TransformableNode andy = new TransformableNode(mArFragment.getTransformationSystem());
-//                    andy.setParent(anchorNode);
-//                    andy.setRenderable(mCorgi);
-//                    andy.select();
                 });
 
         drawerInit();
@@ -302,13 +318,76 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         for (Plane plane : planes) {
             if (plane.getTrackingState() == TrackingState.TRACKING) {
                 //Place anchor and corresponding model at the plane center
-                Anchor anchor = plane.createAnchor(plane.getCenterPose());
+                anchor = plane.createAnchor(plane.getCenterPose());
 
                 //Load pet model
                 loadPet(anchor);
+                Log.d(TAG, "Pet loaded");
+
                 break;
             }
         }
+    }
+
+    //Source: https://github.com/google-ar/sceneform-android-sdk/issues/490
+    //Constantly generate a new location on the sceneform plane every 10 seconds
+    private void onFrame(FrameTime frametime){
+        // Keep track of the first valid plane detected, update it if the plane is lost or subsumed.
+
+        if (firstPlane == null || firstPlane.getTrackingState() != TrackingState.TRACKING) {
+            Collection<Plane> planes = mArFragment.getArSceneView().getSession()
+                    .getAllTrackables(Plane.class);
+            if (!planes.isEmpty()) {
+                firstPlane = planes.iterator().next();
+            }
+            return;
+        }
+        if (firstPlane.getSubsumedBy() != null) {
+            firstPlane = firstPlane.getSubsumedBy();
+        }
+
+        // Every 10 seconds get a new location on plane
+        Log.d(TAG, "Timer: " + timer);
+        if (timer > 10) {
+
+            generateRandomPosition(firstPlane);
+            timer = 0;
+        }
+        timer += frametime.getDeltaSeconds();
+
+        //Create anchor at random location on plane
+        if (isModelPlaced && poseReceived) {
+            Log.d(TAG, "Random anchor created");
+            poseReceived = false;
+            Anchor randAnchor = mArFragment.getArSceneView().getSession().createAnchor(pose);
+            endLocation = new AnchorNode(randAnchor);
+            endLocation.setParent(mArFragment.getArSceneView().getScene());
+
+            Log.d(TAG, "Animate walk");
+            animateWalk();
+        }
+    }
+
+    //Generate random positions on plane for anchor
+    private static Random rand = new Random();
+
+    private void generateRandomPosition(Plane plane) {
+        //Generate random location on plane
+        float maxX = plane.getExtentX() * 2;
+        float randomX = (maxX * rand.nextFloat()) - plane.getExtentX();
+
+        float maxZ = plane.getExtentZ() * 2;
+        float randomZ = (maxZ * rand.nextFloat()) - plane.getExtentZ();
+
+        pose = plane.getCenterPose();
+        float[] translation = pose.getTranslation();
+        float[] rotation = pose.getRotationQuaternion();
+
+        translation[0] += randomX;
+        translation[2] += randomZ;
+        pose = new Pose(translation, rotation);
+        poseReceived = true;
+        Log.d(TAG, "Pose received");
     }
 
     //Function to load pet model created with blender
@@ -319,17 +398,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
         ModelRenderable.builder()
-                .setSource(this, Uri.parse("Corgi.sfb"))
+                .setSource(this, Uri.parse("Corgi_Sit_and_layDown2.sfb"))
                 .build()
                 .thenAccept(renderable -> {
                     mCorgi = renderable;
                     AnchorNode anchorNode = new AnchorNode(anchor);
+                    SkeletonNode skeletonNode = new SkeletonNode();
+                    skeletonNode.setRenderable(mCorgi);
                     anchorNode.setParent(mArFragment.getArSceneView().getScene());
 
                     // Create the transformable pet and add it to the anchor.
-                    TransformableNode corgi = new TransformableNode(mArFragment.getTransformationSystem());
+                    // Add child skeleton node to transformable node
+                    corgi = new TransformableNode(mArFragment.getTransformationSystem());
                     corgi.setParent(anchorNode);
-                    corgi.setRenderable(mCorgi);
+                    corgi.addChild(skeletonNode);
                     corgi.select();
                 })
                 .exceptionally(
@@ -341,6 +423,54 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                             return null;
                         });
     }
+
+    // Run animation on model
+    private void animate(ModelRenderable renderable, String command) {
+        isAnimated = true;
+        if (animateModel != null && animateModel.isRunning()) {
+            animateModel.end();
+        }
+
+        int animationCount = renderable.getAnimationDataCount();
+
+        if (count == animationCount) {
+            count = 0;
+        }
+
+        AnimationData animationData = renderable.getAnimationData(command);
+
+        animateModel = new ModelAnimator(animationData, renderable);
+        animateModel.start();
+        count++;
+    }
+
+    //Walk animation
+    private void animateWalk() {
+        //Avoid walking when no model is present or mid animation
+        if (isModelPlaced == false || isAnimated) {
+            return;
+        }
+        animateObject = new ObjectAnimator();
+        animateObject.setAutoCancel(true);
+        animateObject.setTarget(corgi);
+
+        // All the positions should be world positions
+        // The first position is the start, and the second is the end.
+        animateObject.setObjectValues(corgi.getWorldPosition(), endLocation.getWorldPosition());
+
+        // Use setWorldPosition to position corgi.
+        animateObject.setPropertyName("worldPosition");
+
+        animateObject.setEvaluator(new Vector3Evaluator());
+
+        // Linear animation
+        animateObject.setInterpolator(new LinearInterpolator());
+
+        // Set animation to duration of 5 seconds
+        animateObject.setDuration(5000);
+        animateObject.start();
+}
+
     private void drawerInit() {
         mDrawerLayout = findViewById(R.id.drawable_layout);
         mNavigationView = findViewById(R.id.navigation_view);
@@ -404,7 +534,16 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     boolean handleVoice(String command) {
         boolean matchFound = true;
         switch(command) {
+            case "laydown":
+//                onClear();
+//                loadAnimation(anchor, "Cooper_layDown.sfb");
+                animate(mCorgi, "Armature|layDown");
+                Toast.makeText(this, "Your pet is laying down", Toast.LENGTH_SHORT).show();
+                isAnimated = false;
             case "rollover":
+//                onClear();
+//                loadAnimation(anchor, "Cooper_rollOver.sfb");
+//                animate(mCorgi);
                 Toast.makeText(this, "Your pet is rolling over", Toast.LENGTH_SHORT).show();
                 break;
             case "eat":
@@ -414,7 +553,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(this, "Your pet is playing", Toast.LENGTH_SHORT).show();
                 break;
             case "sit":
+//                onClear();
+//                loadAnimation(anchor, "Cooper_sitDown.sfb");
+                animate(mCorgi, "Armature|sit");
                 Toast.makeText(this, "Your pet is sitting", Toast.LENGTH_SHORT).show();
+                isAnimated = false;
                 break;
             default:
                 matchFound = false;

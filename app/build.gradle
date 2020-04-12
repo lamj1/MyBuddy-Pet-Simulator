@@ -63,7 +63,27 @@ dependencies {
 apply plugin: 'com.google.ar.sceneform.plugin'
 
 
-sceneform.asset('sampledata/models/Corgi3.obj',
+sceneform.asset('sampledata/models/Cooper.obj',
         'default',
-        'sampledata/models/Corgi3.sfa',
-        'src/main/assets/Corgi3')
+        'sampledata/models/Cooper.sfa',
+        'src/main/assets/Cooper')
+
+sceneform.asset('sampledata/models/Cooper_layDown.fbx',
+        'default',
+        'sampledata/models/Cooper_layDown.sfa',
+        'src/main/assets/Cooper_layDown')
+
+sceneform.asset('sampledata/models/Cooper_rollOver.fbx',
+        'default',
+        'sampledata/models/Cooper_rollOver.sfa',
+        'src/main/assets/Cooper_rollOver')
+
+sceneform.asset('sampledata/models/Cooper_sitDown.fbx',
+        'default',
+        'sampledata/models/Cooper_sitDown.sfa',
+        'src/main/assets/Cooper_sitDown')
+
+sceneform.asset('sampledata/models/Corgi_Sit_and_layDown2.fbx',
+        'default',
+        'sampledata/models/Corgi_Sit_and_layDown2.sfa',
+        'src/main/assets/Corgi_Sit_and_layDown2')
