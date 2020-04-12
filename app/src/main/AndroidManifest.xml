@@ -25,7 +25,13 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme">
+        <activity
+            android:name=".StatsActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
+
         <activity android:name=".Intro.IntroActivity" />
+        <activity android:name=".Intro.TutorialActivity" />
         <activity
             android:name=".WelcomeActivity"
             android:theme="@style/AppTheme.NoActionBar">
@@ -40,7 +46,7 @@
         <activity
             android:name=".MainActivity"
             android:label="My Buddy"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:theme="@style/AppTheme.NoActionBar" />
         <!--
  Indicates that the app requires ARCore ("AR Required"). Causes the Google
              Play Store to download and install Google Play Services for AR when the
@@ -54,9 +60,9 @@
             android:resource="@array/preloaded_fonts" />
 
         <activity
-            android:name="com.ufl.mybuddy.SettingsActivity"
-            android:parentActivityName="com.ufl.mybuddy.MainActivity"
-            android:theme="@style/AppTheme.NoActionBar"></activity>
+            android:name=".SettingsActivity"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>

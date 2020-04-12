@@ -78,6 +78,8 @@ import com.google.firebase.firestore.DocumentReference;
 import com.google.firebase.firestore.DocumentSnapshot;
 import com.google.firebase.firestore.FirebaseFirestore;
 import com.squareup.picasso.Picasso;
+import com.ufl.mybuddy.Intro.IntroActivity;
+import com.ufl.mybuddy.Intro.TutorialActivity;
 
 import org.ogasimli.healthbarview.HealthBarView;
 
@@ -348,6 +350,18 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 loadPet(anchor);
                 Log.d(TAG, "Pet loaded");
 
+                animate(mCorgi, "Armature|idle");
+                AnimatorListenerAdapter listenerAdapter = new AnimatorListenerAdapter() {
+                    @Override
+                    public void onAnimationEnd(Animator animation) {
+                        super.onAnimationEnd(animation);
+                        if (mCorgi != null) {
+                            animate(mCorgi, "Armature|idle");
+                        }
+                    }
+                };
+                listenerAdapter.onAnimationEnd(animateModel);
+
                 break;
             }
         }
@@ -564,25 +578,25 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //                onClear();
 //                loadAnimation(anchor, "Cooper_layDown.sfb");
                 animate(mCorgi, "Armature|layDown");
-                Toast.makeText(this, "Your pet is laying down", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is laying down", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
             case "rollover":
 //                onClear();
 //                loadAnimation(anchor, "Cooper_rollOver.sfb");
 //                animate(mCorgi);
-                Toast.makeText(this, "Your pet is rolling over", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is rolling over", Toast.LENGTH_SHORT).show();
                 break;
             case "eat":
-                Toast.makeText(this, "Your pet is eating", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is eating", Toast.LENGTH_SHORT).show();
                 break;
             case "play":
-                Toast.makeText(this, "Your pet is playing", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is playing", Toast.LENGTH_SHORT).show();
                 break;
             case "sit":
 //                onClear();
 //                loadAnimation(anchor, "Cooper_sitDown.sfb");
                 animate(mCorgi, "Armature|sit");
-                Toast.makeText(this, "Your pet is sitting", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is sitting", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
                 break;
             default:
@@ -703,7 +717,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int hunger = (int) mHungerBar.getValue();
                 hunger = Math.max(90, Math.min(hunger + 10, 100));
                 updateBar("hunger", hunger);
-                Toast.makeText(MainActivity.this, "Food Bowl Tapped!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Feeding Buddy!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -714,7 +728,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 int thirst = (int) mThirstBar.getValue();
                 thirst = Math.max(90, Math.min(thirst + 10, 100));
                 updateBar("thirst", thirst);
-                Toast.makeText(MainActivity.this, "Water Bowl Tapped!", Toast.LENGTH_SHORT).show();
+                Toast.makeText(MainActivity.this, "Giving Water to Buddy!", Toast.LENGTH_SHORT).show();
             }
         });
 
@@ -873,7 +887,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             }
         };
         mTimerHandler.post(updater);
-
     }
 
     private void UserMenuSelector(MenuItem item) {
@@ -888,6 +901,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             }
 
+            case R.id.nav_stats: {
+                Intent intent = new Intent(MainActivity.this, StatsActivity.class);
+                startActivity(intent);
+            }
+
             case R.id.nav_reset: {
                 onClear();
                 isModelPlaced = false;
@@ -899,6 +917,14 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 startActivity(intent);
                 //SWITCH SETTINGS ACTIVITY
                 //Toast.makeText(this, "Settings Selected!", Toast.LENGTH_SHORT).show();
+                break;
+            }
+
+            case R.id.nav_tutorial: {
+                Intent intent = new Intent(MainActivity.this, TutorialActivity.class);
+                startActivity(intent);
+                //SWITCH Tutorial / Intro ACTIVITY
+                //Toast.makeText(this, "Tutorial Selected!", Toast.LENGTH_SHORT).show();
                 break;
             }
 

@@ -7,13 +7,21 @@
         android:title="Home"
         android:icon="@drawable/home" />
     <item
+        android:id="@+id/nav_stats"
+        android:title="Stats"
+        android:icon="@drawable/stats" />
+    <item
         android:id="@+id/nav_reset"
-        android:title="Reset Corgi"
+        android:title="Reset Buddy"
         android:icon="@drawable/reset" />
     <item
         android:id="@+id/nav_settings"
         android:title="Settings"
         android:icon="@drawable/settings"/>
+    <item
+        android:id="@+id/nav_tutorial"
+        android:title="Tutorial"
+        android:icon="@drawable/tutorial"/>
     <item
         android:id="@+id/nav_logout"
         android:title="Logout"
