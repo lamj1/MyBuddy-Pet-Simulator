@@ -99,7 +99,7 @@
             app:elevation="0dp" />
 
 
-
+        <!--
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/ball"
             android:layout_width="56dp"
@@ -117,6 +117,7 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.951"
             app:maxImageSize="56dp" />
+            -->
 
         <Button
             android:id="@+id/btnReset"
@@ -157,7 +158,7 @@
             HealthBarView:hbv_strokeColor="#009688"
             HealthBarView:hbv_startColor="#ff1b1b"
             HealthBarView:hbv_endColor="#7bfbaf"
-            HealthBarView:hbv_labels="Starving|Hungry|Little Hungry|Not Hungry|Full|Stuffed"
+            HealthBarView:hbv_labels="Starving|Hungry|Bit Hungry|Not Hungry|Full|Stuffed"
             HealthBarView:hbv_labelsRange="10|30|50|80|90|100"
             HealthBarView:hbv_showValue="false"
             />
@@ -178,7 +179,7 @@
             HealthBarView:hbv_strokeColor="#009688"
             HealthBarView:hbv_startColor="#ff1b1b"
             HealthBarView:hbv_endColor="#2037ff"
-            HealthBarView:hbv_labels="Parched|Thirsty|Little Thirsty|Not Thirsty|Full|Soaking"
+            HealthBarView:hbv_labels="Parched|Thirsty|Bit Thirsty|Not Thirsty|Full|Soaking"
             HealthBarView:hbv_labelsRange="10|30|50|80|90|100"
             HealthBarView:hbv_showValue="false"
             />
