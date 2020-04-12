@@ -105,7 +105,7 @@ public class SettingsActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Map<String, Object> name = new HashMap<>();
                 name.put("name", mBuddyNameTextView.getText().toString().trim());
-                getBuddyName.set(name).addOnCompleteListener(new OnCompleteListener<Void>() {
+                getBuddyName.update(name).addOnCompleteListener(new OnCompleteListener<Void>() {
                     @Override
                     public void onComplete(@NonNull Task<Void> task) {
                         if (task.isSuccessful()) {

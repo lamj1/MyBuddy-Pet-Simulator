@@ -18,8 +18,7 @@
     <ScrollView
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_below="@id/toolbar"
-        android:layout_marginTop="-46dp">
+        android:layout_below="@id/toolbar">
 
         <RelativeLayout
             android:layout_width="match_parent"
@@ -31,7 +30,7 @@
                 android:layout_height="300dp"
                 android:layout_alignParentTop="true"
                 android:layout_centerHorizontal="true"
-                android:layout_marginTop="15dp"
+                android:layout_marginTop="25dp"
                 android:src="@drawable/doggo"
                 android:text="Profile Name" />
 
@@ -44,7 +43,7 @@
                 android:layout_marginTop="15dp"
                 android:gravity="center"
                 android:minWidth="250dp"
-                android:text="Profile Name"
+                android:text="Buddies Name"
                 android:textAlignment="center"
                 android:textAllCaps="false"
                 android:textSize="20sp"

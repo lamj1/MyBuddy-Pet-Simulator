@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="utf-8"?>
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    xmlns:HealthBarView="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context=".StatsActivity"
+    android:background="@color/White" >
+
+    <androidx.appcompat.widget.Toolbar xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/toolbar"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="@color/colorPrimaryDark"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
+    </androidx.appcompat.widget.Toolbar>
+
+    <ScrollView
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_below="@id/toolbar">
+
+        <RelativeLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <de.hdodenhof.circleimageview.CircleImageView
+                android:id="@+id/buddy_picture"
+                android:layout_width="300dp"
+                android:layout_height="300dp"
+                android:layout_alignParentTop="true"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="25dp"
+                android:src="@drawable/doggo"
+                android:text="Profile Name" />
+
+            <TextView
+                android:id="@+id/buddy_full_name"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/buddy_picture"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:minWidth="250dp"
+                android:text="Buddies Name"
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="20sp"
+                android:textStyle="bold" />
+
+            <TextView
+                android:id="@+id/buddy_date"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/buddy_full_name"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                android:gravity="center"
+                android:minWidth="250dp"
+                android:text="Has been here for "
+                android:textAlignment="center"
+                android:textAllCaps="false"
+                android:textSize="18sp"
+                android:textStyle="bold" />
+
+            <org.ogasimli.healthbarview.HealthBarView
+                android:id="@+id/hunger_bar"
+                android:layout_width="400dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/buddy_date"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                HealthBarView:hbv_minValue="0"
+                HealthBarView:hbv_maxValue="100"
+                HealthBarView:hbv_strokeWidth="1dp"
+                HealthBarView:hbv_strokeColor="#009688"
+                HealthBarView:hbv_startColor="#e2ffe6 "
+                HealthBarView:hbv_endColor="#02ff26"
+                HealthBarView:hbv_labels="Starving|Hungry|Bit Hungry|Not Hungry|Full|Stuffed"
+                HealthBarView:hbv_labelsRange="10|30|50|80|90|100"
+                HealthBarView:hbv_showValue="false"
+                />
+
+            <org.ogasimli.healthbarview.HealthBarView
+                android:id="@+id/thirst_bar"
+                android:layout_width="400dp"
+                android:layout_height="wrap_content"
+                android:layout_below="@+id/hunger_bar"
+                android:layout_centerHorizontal="true"
+                android:layout_marginTop="15dp"
+                HealthBarView:hbv_minValue="0"
+                HealthBarView:hbv_maxValue="100"
+                HealthBarView:hbv_strokeWidth="1dp"
+                HealthBarView:hbv_strokeColor="#009688"
+                HealthBarView:hbv_startColor="#88b2ff"
+                HealthBarView:hbv_endColor="#2037ff"
+                HealthBarView:hbv_labels="Parched|Thirsty|Bit Thirsty|Not Thirsty|Full|Soaking"
+                HealthBarView:hbv_labelsRange="10|30|50|80|90|100"
+                HealthBarView:hbv_showValue="false"
+                />
+
+        </RelativeLayout>
+
+
+    </ScrollView>
+
+</RelativeLayout>

@@ -32,7 +32,10 @@
             android:layout_height="wrap_content"
             android:layout_gravity="end|bottom"
             android:src="@drawable/ic_voice_red_24dp"
+            app:borderWidth="0dp"
+            app:elevation="0dp"
             app:backgroundTint="@android:color/transparent"
+            app:rippleColor="@color/White"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintStart_toStartOf="parent"
@@ -99,7 +102,7 @@
             app:elevation="0dp" />
 
 
-
+        <!--
         <com.google.android.material.floatingactionbutton.FloatingActionButton
             android:id="@+id/ball"
             android:layout_width="56dp"
@@ -117,15 +120,8 @@
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintVertical_bias="0.951"
             app:maxImageSize="56dp" />
+            -->
 
-        <Button
-            android:id="@+id/btnReset"
-            android:layout_width="88dp"
-            android:layout_height="48dp"
-            android:layout_marginBottom="8dp"
-            android:text="Reset"
-            app:layout_constraintBottom_toTopOf="@id/voice"
-            app:layout_constraintStart_toStartOf="@id/voice" />
 
         <ImageView
             android:id="@+id/btn_menu"
@@ -150,14 +146,14 @@
             app:layout_constraintHorizontal_bias="0.95"
             app:layout_constraintStart_toStartOf="parent"
             app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintVertical_bias="0.00"
+            app:layout_constraintVertical_bias="0.02"
             HealthBarView:hbv_minValue="0"
             HealthBarView:hbv_maxValue="100"
             HealthBarView:hbv_strokeWidth="1dp"
             HealthBarView:hbv_strokeColor="#009688"
-            HealthBarView:hbv_startColor="#ff1b1b"
-            HealthBarView:hbv_endColor="#7bfbaf"
-            HealthBarView:hbv_labels="Starving|Hungry|Little Hungry|Not Hungry|Full|Stuffed"
+            HealthBarView:hbv_startColor="#e2ffe6 "
+            HealthBarView:hbv_endColor="#02ff26"
+            HealthBarView:hbv_labels="Starving|Hungry|Bit Hungry|Not Hungry|Full|Stuffed"
             HealthBarView:hbv_labelsRange="10|30|50|80|90|100"
             HealthBarView:hbv_showValue="false"
             />
@@ -176,9 +172,9 @@
             HealthBarView:hbv_maxValue="100"
             HealthBarView:hbv_strokeWidth="1dp"
             HealthBarView:hbv_strokeColor="#009688"
-            HealthBarView:hbv_startColor="#ff1b1b"
+            HealthBarView:hbv_startColor="#88b2ff"
             HealthBarView:hbv_endColor="#2037ff"
-            HealthBarView:hbv_labels="Parched|Thirsty|Little Thirsty|Not Thirsty|Full|Soaking"
+            HealthBarView:hbv_labels="Parched|Thirsty|Bit Thirsty|Not Thirsty|Full|Soaking"
             HealthBarView:hbv_labelsRange="10|30|50|80|90|100"
             HealthBarView:hbv_showValue="false"
             />
