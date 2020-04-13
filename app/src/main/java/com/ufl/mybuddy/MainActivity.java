@@ -483,9 +483,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         Vector3 corgiPosition = corgi.getForward();
 //        Vector3 currentPosition = skeletonNode.getLocalPosition();
         Vector3 worldPosition = corgi.getWorldPosition();
-        Log.d(TAG, "Right Position: " + corgiPosition);
-//        Log.d(TAG, "Current Position: " + currentPosition);
+        //Vector3 temp = new Vector3(0, 0, 0);
+        Vector3 bowlPosition = corgi.worldToLocalDirection(corgiPosition);
+        bowlPosition.scaled(0.6F);
         Log.d(TAG, "World Position: " + worldPosition);
+        Log.d(TAG, "Forward Position: " + corgiPosition);
+//        Log.d(TAG, "Current Position: " + currentPosition);
+        Log.d(TAG, "World Position1: " + bowlPosition);
 
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
@@ -498,7 +502,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     bowlAnchorNode.setParent(corgi);
 
                     bowlNode = new Node();
-                    bowlNode.setLocalPosition(worldPosition);
+                    bowlNode.setLocalPosition(bowlPosition);
                     bowlNode.setParent(bowlAnchorNode);
                     bowlNode.setRenderable(mBowl);
 //                    anchorNode.setParent(mArFragment.getArSceneView().getScene());
