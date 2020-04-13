@@ -113,14 +113,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private ArFragment mArFragment;
     private ModelRenderable mCorgi;
     private boolean isModelPlaced = false;
+    private boolean isBowlPlaced = false;
     private Session mArSession;
     private Config mArConfig;
     private boolean mInstallRequested;
     private boolean mEnableAutoFocus;
     private boolean firstPlacement = false;
     private Anchor anchor;
+    private AnchorNode bowlAnchorNode;
     private TransformableNode corgi;
     private AnchorNode endLocation;
+    private ModelRenderable mBowl;
+    private SkeletonNode skeletonNode;
+    private Node bowlNode;
 
     // AR Animation
     private ModelAnimator animateModel;
@@ -413,15 +418,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Corgi not null");
             animate(mCorgi, "Armature|idle");
         }
-
-        // Ensure corgi model is always facing the camera
-//        if (corgi != null) {
-//            Vector3 cameraPosition = mArFragment.getArSceneView().getScene().getCamera().getForward();
-//            Vector3 corgiPosition = corgi.getWorldPosition();
-//            Vector3 direction = Vector3.subtract(cameraPosition, corgiPosition);
-//            Quaternion lookRotation = Quaternion.lookRotation(direction, Vector3.up());
-//            corgi.setWorldRotation(lookRotation);
-//        }
     }
 
     //Generate random positions on plane for anchor
@@ -459,7 +455,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 .thenAccept(renderable -> {
                     mCorgi = renderable;
                     AnchorNode anchorNode = new AnchorNode(anchor);
-                    SkeletonNode skeletonNode = new SkeletonNode();
+                    skeletonNode = new SkeletonNode();
                     skeletonNode.setRenderable(mCorgi);
                     anchorNode.setParent(mArFragment.getArSceneView().getScene());
 
@@ -480,39 +476,43 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         });
     }
 
-    // Place bowl in front of pet model
-//    private void getAnchors(DataSnapshot dataSnapshot){
-//        double temp_x=0.0;
-//        double temp_y=0.0;
-//        double temp_z=0.0;
-//        long   temp_val=0;
-//        String temp_room="";
-//        float[] translation= new float[3];
-//        float[] rotation = {0.0f,0.0f,0.0f,0.0f};
-//        Vector3 wektor3;
-//        for(DataSnapshot ds : dataSnapshot.getChildren())
-//        {
-//            //TODO: create anchors with downloaded values when in the same position use hitpose.creatanchor with pose.
-//
-//            ObjectConversion vars = ds.getValue(ObjectConversion.class);
-//            temp_x = vars.getX();
-//            temp_y = vars.getY();
-//            temp_z = vars.getZ();
-//            temp_room = vars.getRoom();
-//            temp_val=vars.getType();
-//
-//            translation[0]=(float) temp_x;
-//            translation[1]=(float) temp_y;
-//            translation[2]=(float) temp_z;
-//            wektor3 = new Vector3((float)temp_x,(float)temp_y,(float)temp_z);
-//            Pose pose = new Pose(translation,rotation);
-//
-//            Anchor anchorx = download_hit_result.getTrackable().createAnchor(pose);
-//            AnchorNode anchorNodex = new AnchorNode(anchorx);
-//            anchorNodex.setParent(arFragment.getArSceneView().getScene());
-//            anchorNodex.setRenderable(andyRenderable);
-//        }
-//    }
+    //Function to load bowl model created with blender
+    private void loadBowl(Anchor anchor) {
+        isBowlPlaced = true;
+
+        Vector3 corgiPosition = corgi.getForward();
+//        Vector3 currentPosition = skeletonNode.getLocalPosition();
+        Vector3 worldPosition = corgi.getWorldPosition();
+        Log.d(TAG, "Right Position: " + corgiPosition);
+//        Log.d(TAG, "Current Position: " + currentPosition);
+        Log.d(TAG, "World Position: " + worldPosition);
+
+        // When you build a Renderable, Sceneform loads its resources in the background while returning
+        // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
+        ModelRenderable.builder()
+                .setSource(this, Uri.parse("Corgi_bowl_thick.sfb"))
+                .build()
+                .thenAccept(renderable -> {
+                    mBowl = renderable;
+                    bowlAnchorNode = new AnchorNode(anchor);
+                    bowlAnchorNode.setParent(corgi);
+
+                    bowlNode = new Node();
+                    bowlNode.setLocalPosition(worldPosition);
+                    bowlNode.setParent(bowlAnchorNode);
+                    bowlNode.setRenderable(mBowl);
+//                    anchorNode.setParent(mArFragment.getArSceneView().getScene());
+
+                })
+                .exceptionally(
+                        throwable -> {
+                            Toast toast =
+                                    Toast.makeText(this, "Unable to load Bowl", Toast.LENGTH_LONG);
+                            toast.setGravity(Gravity.CENTER, 0, 0);
+                            toast.show();
+                            return null;
+                        });
+    }
 
     // Run animation on model
     private void animate(ModelRenderable renderable, String command) {
@@ -558,6 +558,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Handler handler = new Handler();
                         handler.postDelayed(new Runnable() {
                             public void run() {
+                                clearBowl();
                                 Log.d(TAG, "Animation ended");
                                 animate(mCorgi, "Armature|idle");
                             }
@@ -666,26 +667,27 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 break;
             case "rollover":
                 animate(mCorgi, "Armature|rollOver");
-                Toast.makeText(this, "Your pet is rolling over", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is rolling over", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
                 break;
             case "eat":
+                loadBowl(anchor);
                 animate(mCorgi, "Armature|eat");
-                Toast.makeText(this, "Your pet is eating", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is eating", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
                 break;
             case "play":
                 animate(mCorgi, "Armature|Play");
-                Toast.makeText(this, "Your pet is playing", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is playing", Toast.LENGTH_SHORT).show();
                 break;
             case "jump":
                 animate(mCorgi, "Armature|jump");
-                Toast.makeText(this, "Your pet is jumping", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is jumping", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
                 break;
             case "bow":
                 animate(mCorgi, "Armature|bow");
-                Toast.makeText(this, "Your pet is bowing", Toast.LENGTH_SHORT).show();
+                Toast.makeText(this, "Your buddy is bowing", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
                 break;
             case "sit":
@@ -824,30 +826,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 Toast.makeText(MainActivity.this, "Giving Water to Buddy!", Toast.LENGTH_SHORT).show();
             }
         });
-
-//        Button btn = findViewById(R.id.btnReset);
-//
-//        btn.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View v) {
-//                onClear();
-//                isModelPlaced = false;
-
-//                new Timer().schedule(new TimerTask() {
-//                    @Override
-//                    public void run() {
-//                        // this code will be executed after 2 seconds
-//                        mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
-//                        mArFragment.getArSceneView().getScene().addOnUpdateListener(MainActivity.this::onPlaneDetection);
-//                        isModelPlaced = false;
-//                    }
-//                }, 5000);
-//                isModelPlaced = false;
-//                firstPlacement = false;
-//                mArFragment = (ArFragment) getSupportFragmentManager().findFragmentById(R.id.sceneform_fragment);
-//                mArFragment.getArSceneView().getScene().addOnUpdateListener(MainActivity.this::onPlaneDetection);
-//            }
-//        });
     }
 
     private void openOrCloseBowls() {
@@ -1053,6 +1031,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 //            loadLogInView();
         } else {
             loadLogInView();
+        }
+    }
+
+    private void clearBowl() {
+        if (bowlAnchorNode.getAnchor() != null) {
+//            bowlNode.getAnchor().detach();
+            bowlNode.setParent(null);
         }
     }
 

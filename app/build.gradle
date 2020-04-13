@@ -77,7 +77,7 @@ sceneform.asset('sampledata/models/Corgi_Combined2.fbx',
         'sampledata/models/Corgi_Combined2.sfa',
         'src/main/assets/Corgi_Combined2')
 
-sceneform.asset('sampledata/models/Corgi_bowl2.obj',
+sceneform.asset('sampledata/models/Corgi_bowl_thick.obj',
         'default',
-        'sampledata/models/Corgi_bowl2.sfa',
-        'src/main/assets/Corgi_bowl2')
+        'sampledata/models/Corgi_bowl_thick.sfa',
+        'src/main/assets/Corgi_bowl_thick')
