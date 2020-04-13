@@ -183,6 +183,7 @@ public class SettingsActivity extends AppCompatActivity {
         mUserProfileImage = findViewById(R.id.buddy_picture);
         mBuddyNameTextView.setText(name);
         Picasso.with(SettingsActivity.this).load(mPhoto.toString()).placeholder(R.drawable.doggo).into(mUserProfileImage);
+        mUserProfileImage.setVisibility(View.VISIBLE);
 
         mUserProfileImage.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -206,5 +207,15 @@ public class SettingsActivity extends AppCompatActivity {
             view = new View(activity);
         }
         imm.hideSoftInputFromWindow(view.getWindowToken(), 0);
+    }
+
+    @Override
+    public void onBackPressed() {
+        Intent mainActivity = new Intent(getApplicationContext(), MainActivity.class);
+        // To Clear back stack.
+        // https://stackoverflow.com/questions/5794506/android-clear-the-back-stack
+        mainActivity.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        startActivity(mainActivity);
+        finish();
     }
 }

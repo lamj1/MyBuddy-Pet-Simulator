@@ -32,7 +32,8 @@
                 android:layout_centerHorizontal="true"
                 android:layout_marginTop="25dp"
                 android:src="@drawable/doggo"
-                android:text="Profile Name" />
+                android:text="Profile Name"
+                android:visibility="invisible" />
 
             <EditText
                 android:id="@+id/buddy_full_name"
