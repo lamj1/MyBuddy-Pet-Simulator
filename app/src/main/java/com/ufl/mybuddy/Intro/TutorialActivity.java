@@ -66,7 +66,7 @@ public class TutorialActivity extends AppCompatActivity {
         final List<ScreenItem> mList = new ArrayList<>();
         mList.add(new ScreenItem("Take Care of Your Buddy","Learn how to raise a pet of your own! Interact with your buddy in various environments such as your living room or outside at the park.\n\n(Check out the settings to change their picture and name!)", R.drawable.introimg1));
         mList.add(new ScreenItem("Feed Your Buddy","Use the water and food bowls to feed your buddy throughout the day. Just like real pets, your buddy gets hungry and thirsty too!\n\n(Check out the stats page to see stats like this!)",R.drawable.introimg2));
-        mList.add(new ScreenItem("Teach Your Buddy Commands","Tap on the microphone button and repeat any of the following commands:\n\"Sit, Jump, Eat, Roll Over, Lay Down, Bow, Play\"\nYour Buddy should follow your voice and do as you say!",R.drawable.introimg3));
+        mList.add(new ScreenItem("Teach Your Buddy Commands","Tap on the microphone button and repeat any of the following commands:\n\"Sit, Jump, Roll Over, Lay Down, Bow, Play\"\nYour Buddy should follow your voice and do as you say!",R.drawable.introimg3));
 
         // Viewpager
         mScreenPager = findViewById(R.id.screen_viewpager);
