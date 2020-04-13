@@ -137,6 +137,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private boolean poseReceived = false;
     private boolean isAnimated = false;
     private boolean firstAnimation = false;
+    Vector3 corgiPosition;
 
     // Foating Action Buttons users can tap on.
     private FloatingActionButton mVoiceFab;
@@ -418,6 +419,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             Log.d(TAG, "Corgi not null");
             animate(mCorgi, "Armature|idle");
         }
+
+        if (corgi != null) {
+            corgiPosition = corgi.getForward();
+        }
     }
 
     //Generate random positions on plane for anchor
@@ -480,12 +485,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void loadBowl(Anchor anchor) {
         isBowlPlaced = true;
 
-        Vector3 corgiPosition = corgi.getForward();
-//        Vector3 currentPosition = skeletonNode.getLocalPosition();
-        Vector3 worldPosition = corgi.getWorldPosition();
-        Log.d(TAG, "Right Position: " + corgiPosition);
-//        Log.d(TAG, "Current Position: " + currentPosition);
-        Log.d(TAG, "World Position: " + worldPosition);
+        corgiPosition = corgi.getForward();
+        Vector3 bowlPosition = corgi.worldToLocalDirection(corgiPosition).scaled(0.7f);
 
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
@@ -498,10 +499,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                     bowlAnchorNode.setParent(corgi);
 
                     bowlNode = new Node();
-                    bowlNode.setLocalPosition(worldPosition);
+                    bowlNode.setLocalPosition(bowlPosition);
                     bowlNode.setParent(bowlAnchorNode);
                     bowlNode.setRenderable(mBowl);
-//                    anchorNode.setParent(mArFragment.getArSceneView().getScene());
 
                 })
                 .exceptionally(
@@ -558,7 +558,12 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                         Handler handler = new Handler();
                         handler.postDelayed(new Runnable() {
                             public void run() {
-                                clearBowl();
+                                //Clear bowl if eating animated
+                                if (isBowlPlaced) {
+                                    isBowlPlaced = false;
+                                    clearBowl();
+                                }
+
                                 Log.d(TAG, "Animation ended");
                                 animate(mCorgi, "Armature|idle");
                             }
@@ -668,12 +673,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             case "rollover":
                 animate(mCorgi, "Armature|rollOver");
                 Toast.makeText(this, "Your buddy is rolling over", Toast.LENGTH_SHORT).show();
-                isAnimated = false;
-                break;
-            case "eat":
-                loadBowl(anchor);
-                animate(mCorgi, "Armature|eat");
-                Toast.makeText(this, "Your buddy is eating", Toast.LENGTH_SHORT).show();
                 isAnimated = false;
                 break;
             case "play":
@@ -809,6 +808,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 openOrCloseBowls();
+                loadBowl(anchor);
+                animate(mCorgi, "Armature|eat");
+                isAnimated = false;
                 int hunger = (int) mHungerBar.getValue();
                 hunger = Math.max(90, Math.min(hunger + 10, 100));
                 updateBar("hunger", hunger);
@@ -820,6 +822,9 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 openOrCloseBowls();
+                loadBowl(anchor);
+                animate(mCorgi, "Armature|eat");
+                isAnimated = false;
                 int thirst = (int) mThirstBar.getValue();
                 thirst = Math.max(90, Math.min(thirst + 10, 100));
                 updateBar("thirst", thirst);
@@ -1034,10 +1039,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
+    // Clear the bowl from the scene
     private void clearBowl() {
         if (bowlAnchorNode.getAnchor() != null) {
-//            bowlNode.getAnchor().detach();
-            bowlNode.setParent(null);
+            bowlNode.getParent().removeChild(bowlNode);
         }
     }
 
