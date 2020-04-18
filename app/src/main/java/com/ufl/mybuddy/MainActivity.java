@@ -455,7 +455,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
         ModelRenderable.builder()
-                .setSource(this, Uri.parse("Corgi_Combined2.sfb"))
+                .setSource(this, Uri.parse("Corgi_Combined3.sfb"))
                 .build()
                 .thenAccept(renderable -> {
                     mCorgi = renderable;
@@ -482,7 +482,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
     //Function to load bowl model created with blender
-    private void loadBowl(Anchor anchor) {
+    private void loadBowl(Anchor anchor, String bowlType) {
         isBowlPlaced = true;
 
         corgiPosition = corgi.getForward();
@@ -491,7 +491,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         // When you build a Renderable, Sceneform loads its resources in the background while returning
         // a CompletableFuture. Call thenAccept(), handle(), or check isDone() before calling get().
         ModelRenderable.builder()
-                .setSource(this, Uri.parse("Corgi_bowl_thick.sfb"))
+                .setSource(this, Uri.parse(bowlType))
                 .build()
                 .thenAccept(renderable -> {
                     mBowl = renderable;
@@ -808,7 +808,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 openOrCloseBowls();
-                loadBowl(anchor);
+                loadBowl(anchor, "Corgi_foodBowl.sfb");
                 animate(mCorgi, "Armature|eat");
                 isAnimated = false;
                 int hunger = (int) mHungerBar.getValue();
@@ -822,7 +822,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
             @Override
             public void onClick(View v) {
                 openOrCloseBowls();
-                loadBowl(anchor);
+                loadBowl(anchor, "Corgi_waterBowl.sfb");
                 animate(mCorgi, "Armature|eat");
                 isAnimated = false;
                 int thirst = (int) mThirstBar.getValue();
