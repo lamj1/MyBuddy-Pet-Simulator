@@ -970,10 +970,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
             case R.id.nav_home: {
                 //Go HOME
-                //Intent intent = new Intent(MainActivity.this, MainActivity.class);
-                //startActivity(intent);
+                Intent intent = new Intent(MainActivity.this, MainActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+                startActivity(intent);
                 //this.overridePendingTransition(0, 0);
-                Toast.makeText(this, "Home Selected!", Toast.LENGTH_SHORT).show();
+                //Toast.makeText(this, "Home Selected!", Toast.LENGTH_SHORT).show();
                 break;
             }
 

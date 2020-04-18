@@ -90,7 +90,8 @@ public class StatsActivity extends AppCompatActivity {
                     Log.d(TAG, "Buddies name: " + name);
                     Timestamp timestamp = (Timestamp) document.getData().getOrDefault("created", 0);
                     int hunger = (int) (long) document.getData().getOrDefault("hungerValue", 0);
-                    int thirst = (int) (long) document.getData().getOrDefault("hungerValue", 0);
+                    int thirst = (int) (long) document.getData().getOrDefault("thirstValue", 0);
+                    Log.d(TAG, "hunger and thirst: " + hunger + " " + thirst);
                     Log.d(TAG, "timestamp statsActivity: " + timestamp.toString());
                     mBuddyName = name;
                     Timestamp mBuddyCreated = timestamp;
